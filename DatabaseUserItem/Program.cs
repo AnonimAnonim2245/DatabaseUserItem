@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 //builder.Services.AddDbContext<TodoContext>(item => item.UseSqlServer(configuration.GetConnectionString("mycoon")));
-builder.Services.AddDbContext<TodoContext>(opt =>
+builder.Services.AddDbContext<CompanyContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetSection("ConnectionString").Value));
 
 

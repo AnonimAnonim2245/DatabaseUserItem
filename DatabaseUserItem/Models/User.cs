@@ -9,8 +9,11 @@
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
         public string? ProfilePicture { get; set; }
+        public string? Salary_range { get; set; }
+        public string? Employee_type { get; set; }
         public DateTime?  BirthDate { get; set; }
+        public int PositionId { get; set; }
 
-        public virtual List<TodoItem> TodoItems { get; set; } 
+
     }
 }

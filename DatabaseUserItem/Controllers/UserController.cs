@@ -2,62 +2,40 @@
 using Microsoft.EntityFrameworkCore;
 using DatabaseUserItem.Database;
 using DatabaseUserItem.Models;
-using DatabaseUserItem.Models.Dtos;
-
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace ToDoListAPI.Controllers
+namespace DatabaseUserItem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly TodoContext _context;
+        private readonly CompanyContext _context;
 
-        public UserController(TodoContext context)
+        public UserController(CompanyContext context)
         {
             _context = context;
         }
 
-        // GET: api/<UserController>
-        [HttpGet("{id}/GetUserItems")]
-        public async Task<ActionResult<IEnumerable<TodoItem>>> GetUserItems(int id)
-        {
-            if (_context.Users == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users
-                .Include(x => x.TodoItems)
-                .SingleOrDefaultAsync(x => x.Id == id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(user.TodoItems);
-        }
-
-        // GET: api/<UserController>
+        // GET: api/Position
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> Get()
-        {
-            return await _context.Users
-                .Include(x => x.TodoItems)
-               .ToListAsync();
-        }
-
-        // GET api/<UserController>/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserDto>> Get(int id)
+        public async Task<ActionResult<IEnumerable<User>>> GetTodoItems()
         {
             if (_context.Users == null)
             {
                 return NotFound();
             }
+            return await _context.Users.ToListAsync();
+        }
 
+        // GET: api/TodoItems1/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<User>> GetTodoItem(long id)
+        {
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
             var user = await _context.Users.FindAsync(id);
 
             if (user == null)
@@ -65,58 +43,86 @@ namespace ToDoListAPI.Controllers
                 return NotFound();
             }
 
-            return ItemToDTO(user);
+            return user;
         }
 
-        // POST api/<UserController>
+
+
+
+
+
+
+        // PUT: api/TodoItems1/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutTodoItem(long id, User user)
+        {
+            if (id != user.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(user).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!UserExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // POST: api/TodoItems1
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] UserDto user)
+        public async Task<ActionResult<User>> PostTodoItem(User user)
         {
             if (_context.Users == null)
             {
                 return Problem("Entity set 'TodoContext.TodoItems'  is null.");
             }
-
-            var localUser = new User
-            {
-                Name = user.Name,
-                SecondName = user.SecondName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                Address = user.Address,
-                ProfilePicture = user.ProfilePicture,
-                BirthDate = user.BirthDate,
-            };
-
-            _context.Users.Add(localUser);
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return CreatedAtAction("GetTodoItem", new { id = user.Id }, user);
         }
 
-        // PUT api/<UserController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<UserController>/5
+        // DELETE: api/Position/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> DeleteTodoItem(long id)
         {
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
-        private static UserDto ItemToDTO(User user) =>
-         new()
-         {
-             Id = user.Id,
-             Name = user.Name,
-             SecondName = user.SecondName,
-             Email = user.Email,
-             PhoneNumber = user.PhoneNumber,
-             Address = user.Address,
-             ProfilePicture = user.ProfilePicture,
-             BirthDate = user.BirthDate,
-         };
+        private bool UserExists(long id)
+        {
+            return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+        
+
     }
 }

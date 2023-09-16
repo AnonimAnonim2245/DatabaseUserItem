@@ -4,18 +4,18 @@ using System.Reflection;
 
 namespace DatabaseUserItem.Database
 {
-    public class MigrationsDbContextFactory : IDesignTimeDbContextFactory<TodoContext>
+    public class MigrationsDbContextFactory : IDesignTimeDbContextFactory<CompanyContext>
     {
-        public TodoContext CreateDbContext(string[] args)
+        public CompanyContext CreateDbContext(string[] args)
         {
-            var optionsBuilder = new DbContextOptionsBuilder<TodoContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<CompanyContext>();
 
             optionsBuilder.UseSqlServer(args.Length > 0 ? args[0] : "", o =>
             {
                 o.MigrationsAssembly(Assembly.GetExecutingAssembly().FullName);
             });
 
-            return new TodoContext(optionsBuilder.Options);
+            return new CompanyContext(optionsBuilder.Options);
         }
     }
 }
